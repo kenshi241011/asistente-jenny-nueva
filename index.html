@@ -26,13 +26,25 @@
             </div>
             <h1 class="text-4xl font-bold mb-2 text-white">Bienvenido a Jelo</h1>
             <p class="text-gray-400 mb-8">Tu asistente personal con historial de chat.</p>
-            <button id="login-button" class="bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold py-3 px-6 rounded-lg flex items-center gap-3 mx-auto w-full justify-center disabled:opacity-75 disabled:cursor-wait">
-    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/>
-    </svg>
-    <span id="login-button-text">Iniciar Sesión con Facebook</span>
-</button>
-            <p id="login-error" class="text-red-500 mt-4"></p>
+            
+            <div class="w-full space-y-4">
+                <button id="login-button" class="bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold py-3 px-6 rounded-lg flex items-center gap-3 mx-auto w-full justify-center disabled:opacity-75 disabled:cursor-wait">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>
+                    <span>Iniciar Sesión con Facebook</span>
+                </button>
+                
+                <button id="google-login-button" class="bg-white hover:bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-lg flex items-center gap-3 mx-auto w-full justify-center disabled:opacity-75 disabled:cursor-wait border border-gray-300">
+                    <svg class="w-5 h-5" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+                        <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"/>
+                        <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.223 0-9.657-3.657-11.303-8H6.306C9.656 39.663 16.318 44 24 44z"/>
+                        <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C44.591 35.013 46 30.023 46 24c0-1.341-.138-2.65-.389-3.917z"/>
+                    </svg>
+                    <span id="google-login-button-text">Iniciar Sesión con Google</span>
+                </button>
+            </div>
+
+            <p id="login-error" class="text-red-500 mt-4 h-5"></p>
         </div>
     </div>
 
@@ -62,12 +74,9 @@
         <div class="flex-1 flex flex-col">
             <header class="p-4 border-b border-gray-700 flex justify-between items-center">
                  <button id="menu-toggle" class="sm:hidden p-2 text-gray-400">
-                    <h1 id="chat-title" class="text-xl font-semibold text-white">Jelo</h1>
-     <div id="user-profile" class="flex items-center gap-3">
-         </div>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
                  </button>
-                 <h1 class="text-xl font-semibold text-white">Jelo</h1>
+                 <h1 id="chat-title" class="text-xl font-semibold text-white">Jelo</h1>
                  <div id="user-profile" class="flex items-center gap-3">
                      <span id="user-name" class="font-medium text-gray-300 hidden sm:inline"></span>
                      <img id="user-photo" class="w-8 h-8 rounded-full" alt="Foto de perfil">

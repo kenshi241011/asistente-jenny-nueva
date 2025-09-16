@@ -33,7 +33,7 @@ let chatContext = [];
 let activeContextMenu = null;
 let isTemporaryChat = false;
 
-// --- Configuración de Firebase (ACTUALIZADA) ---
+// --- Configuración de Firebase (NUEVO PROYECTO) ---
 const firebaseConfig = {
   apiKey: "AIzaSyCyEwjd6P6Az_VFJRDuU8bapbeSOvCVMpk",
   authDomain: "jelo-database-nueva.firebaseapp.com",
@@ -43,10 +43,12 @@ const firebaseConfig = {
   appId: "1:725982583709:web:dcb82f4f67b23a4ccaad74"
 };
 
+
 // --- Selección de Elementos del DOM ---
 const loginScreen = document.getElementById('login-screen');
 const appScreen = document.getElementById('app-screen');
-const loginButton = document.getElementById('login-button');
+const loginButton = document.getElementById('login-button'); // Botón de Facebook
+const googleLoginButton = document.getElementById('google-login-button'); // Botón de Google
 const loginButtonText = document.getElementById('login-button-text');
 const logoutButton = document.getElementById('logout-button');
 const userName = document.getElementById('user-name');
@@ -78,11 +80,6 @@ const notificationToast = document.getElementById('notification-toast');
 // INICIO DE LA LÓGICA PARA CREAR ARCHIVOS
 // =================================================================================
 
-/**
- * Genera y descarga un archivo de Excel (.xlsx) a partir de un array de objetos.
- * @param {Array<Object>} datos - Un array de objetos, ej: [{col1: "a", col2: "b"}, ...].
- * @param {string} fileName - El nombre del archivo a descargar.
- */
 function generateExcel(datos, fileName = "archivo.xlsx") {
     try {
         const ws = XLSX.utils.json_to_sheet(datos);
@@ -95,11 +92,6 @@ function generateExcel(datos, fileName = "archivo.xlsx") {
     }
 }
 
-/**
- * Genera y descarga un archivo de Word (.docx) a partir de texto simple.
- * @param {string} textContent - El contenido del documento.
- * @param {string} fileName - El nombre del archivo a descargar.
- */
 function generateWord(textContent, fileName = 'documento.docx') {
     try {
         const zip = new PizZip();
@@ -117,11 +109,6 @@ function generateWord(textContent, fileName = 'documento.docx') {
     }
 }
 
-/**
- * Genera y descarga un archivo de PowerPoint (.pptx) a partir de texto estructurado.
- * @param {string} textContent - El contenido estructurado para las diapositivas (separadas por ---).
- * @param {string} fileName - El nombre del archivo a descargar.
- */
 function generatePptx(textContent, fileName = 'presentacion.pptx') {
     try {
         const pptx = new PptxGenJS();
@@ -192,16 +179,15 @@ async function signInWithFacebook() {
         return;
     }
     loginButton.disabled = true;
-    loginButtonText.textContent = "Conectando...";
+    // loginButtonText.textContent is now just for FB, handled inside the button itself
     loginError.textContent = "";
 
-    const provider = new FacebookAuthProvider(); // ¡Usando Facebook!
+    const provider = new FacebookAuthProvider();
     try {
         await setPersistence(auth, browserLocalPersistence);
         await signInWithPopup(auth, provider);
     } catch (error) {
         console.error("Error al iniciar sesión con Facebook:", error);
-        // Manejo de error común si el email ya existe con otra cuenta (ej. Google)
         if (error.code === 'auth/account-exists-with-different-credential') {
             loginError.textContent = "Ya existe una cuenta con este email. Intenta iniciar sesión con otro método.";
         } else {
@@ -209,7 +195,28 @@ async function signInWithFacebook() {
         }
     } finally {
         loginButton.disabled = false;
-        loginButtonText.textContent = "Iniciar Sesión con Facebook";
+    }
+}
+
+async function signInWithGoogle() {
+    if (!auth) {
+        loginError.textContent = "Firebase no está listo. Intenta de nuevo en un momento.";
+        return;
+    }
+    googleLoginButton.disabled = true;
+    document.getElementById('google-login-button-text').textContent = "Conectando...";
+    loginError.textContent = "";
+
+    const provider = new GoogleAuthProvider();
+    try {
+        await setPersistence(auth, browserLocalPersistence);
+        await signInWithPopup(auth, provider);
+    } catch (error) {
+        console.error("Error al iniciar sesión con Google:", error);
+        loginError.textContent = "Error al iniciar sesión. Inténtalo de nuevo.";
+    } finally {
+        googleLoginButton.disabled = false;
+        document.getElementById('google-login-button-text').textContent = "Iniciar Sesión con Google";
     }
 }
 
@@ -306,7 +313,7 @@ function loadConversation(convoId) {
         chatHistory.innerHTML = '';
         if (doc.exists()) {
             const convoData = doc.data();
-            chatTitle.textContent = convoData.title || 'Jelo'; // Actualiza el título
+            chatTitle.textContent = convoData.title || 'Jelo';
             chatContext = convoData.messages || [];
             if (chatContext.length > 0) {
                 welcomeScreen.classList.add('hidden');
@@ -337,7 +344,6 @@ function startTemporaryChat() {
     document.querySelectorAll('.history-item').forEach(item => item.classList.remove('active'));
     chatTitle.textContent = 'Chat Temporal';
     showToast('Iniciando chat temporal...');
-    // Opcional: Oculta la barra lateral en móvil al iniciar chat
     historySidebar.classList.add('-translate-x-full');
     sidebarBackdrop.classList.add('hidden');
 }
@@ -387,15 +393,9 @@ async function handleChat(promptOverride = null, isFileContext = false) {
 
 function parseMarkdown(text) {
     let processedHtml = text;
-
     const fileBlockRegex = /```(excel|word|pptx)\n([\s\S]*?)\n```/g;
     processedHtml = processedHtml.replace(fileBlockRegex, (match, type, content) => {
-        const fileTypes = {
-            excel: 'Excel (.xlsx)',
-            word: 'Word (.docx)',
-            pptx: 'PowerPoint (.pptx)'
-        };
-
+        const fileTypes = { excel: 'Excel (.xlsx)', word: 'Word (.docx)', pptx: 'PowerPoint (.pptx)' };
         const uniqueId = `file-${Date.now()}-${Math.random()}`;
         return `
         <div id="${uniqueId}" class="file-download-container prose max-w-lg">
@@ -409,19 +409,13 @@ function parseMarkdown(text) {
           <div class="file-data" style="display:none;">${content.trim()}</div>
         </div>`;
     });
-
     const codeBlockRegex = /```(\w*)\n([\s\S]*?)\n```/g;
     processedHtml = processedHtml.replace(codeBlockRegex, (match, lang, code) => {
         if (match.includes('file-download-container')) return match;
         const escapedCode = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
         return `<pre><code class="language-${lang}">${escapedCode}</code></pre>`;
     });
-
-    const inline = (t) => t
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/`([^`]+)`/g, '<code>$1</code>');
-
+    const inline = (t) => t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/`([^`]+)`/g, '<code>$1</code>');
     const lines = processedHtml.split('\n');
     let inList = false;
     let finalHtml = '';
@@ -447,7 +441,6 @@ function parseMarkdown(text) {
         }
     }
     if (inList) finalHtml += '</ul>';
-
     return finalHtml.replace(/<p><\/p>/g, '');
 }
 
@@ -640,6 +633,7 @@ window.dibujaCirculoEnCanvas = function (x, y, r, color = "#ef4444") {
 
 // --- Event Listeners ---
 loginButton.addEventListener('click', signInWithFacebook);
+googleLoginButton.addEventListener('click', signInWithGoogle);
 temporalChatButton.addEventListener('click', startTemporaryChat);
 logoutButton.addEventListener('click', () => signOut(auth));
 newChatButton.addEventListener('click', startNewChat);
@@ -668,7 +662,6 @@ chatHistory.addEventListener('click', function (e) {
 
         if (fileType === 'excel') {
             try {
-                // Parseamos el texto como JSON antes de pasarlo a la función
                 const jsonData = JSON.parse(fileContent);
                 generateExcel(jsonData, 'reporte.xlsx');
             } catch (error) {
@@ -685,5 +678,4 @@ chatHistory.addEventListener('click', function (e) {
 
 
 // --- Inicialización ---
-initializeApp(firebaseConfig);
 initializeFirebase();
