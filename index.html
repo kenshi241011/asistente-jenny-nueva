@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA:Jelo</title>
+    <link rel="icon" href="favicon .ico" type="image/x-icon">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.47.1/docxtemplater.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.7/pizzip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-900">
+
+    <div id="login-screen" class="w-full h-screen flex items-center justify-center p-4 bg-gray-900">
+        <div class="text-center max-w-md w-full bg-gray-800/50 backdrop-blur-xl p-8 rounded-2xl shadow-lg border border-gray-700">
+             <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center mb-6 mx-auto">
+                <svg class="w-12 h-12 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.75L13.2625 8.2375L18.75 9.5L13.2625 10.7625L12 16.25L10.7375 10.7625L5.25 9.5L10.7375 8.2375L12 2.75Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h1 class="text-4xl font-bold mb-2 text-white">Bienvenido a Jelo</h1>
+            <p class="text-gray-400 mb-8">Tu asistente personal con historial de chat.</p>
+            <button id="login-button" class="bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold py-3 px-6 rounded-lg flex items-center gap-3 mx-auto w-full justify-center disabled:opacity-75 disabled:cursor-wait">
+    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/>
+    </svg>
+    <span id="login-button-text">Iniciar Sesión con Facebook</span>
+</button>
+            <p id="login-error" class="text-red-500 mt-4"></p>
+        </div>
+    </div>
+
+    <div id="app-screen" class="w-full h-screen flex hidden relative">
+        <div id="notification-toast" class="absolute top-5 left-1/2 -translate-x-1/2 bg-gray-700 text-white py-2 px-5 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 z-50">
+        Iniciando chat temporal...
+    </div>
+        <div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-30 hidden sm:hidden"></div>
+
+        <div id="history-sidebar" class="fixed sm:relative inset-y-0 left-0 w-64 p-4 flex flex-col z-40 transform -translate-x-full sm:translate-x-0 transition-transform duration-300 ease-in-out">
+            <button id="new-chat-button" class="w-full text-left p-2 mb-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                + Nuevo Chat
+            </button>
+            <button id="temporal-chat-button" class="w-full text-left p-2 mb-2 bg-gray-700/60 text-gray-300 rounded-lg hover:bg-gray-700 flex items-center gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stroke-current">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke-dasharray="2 2"></path>
+        </svg>
+        <span>Chat temporal</span>
+        </button>
+         <h2 class="text-sm font-semibold text-gray-400 mb-2 px-2">Historial</h2>
+         <div id="history-list" class="flex-grow overflow-y-auto"></div>
+         </div>
+           
+        
+        
+
+        <div class="flex-1 flex flex-col">
+            <header class="p-4 border-b border-gray-700 flex justify-between items-center">
+                 <button id="menu-toggle" class="sm:hidden p-2 text-gray-400">
+                    <h1 id="chat-title" class="text-xl font-semibold text-white">Jelo</h1>
+     <div id="user-profile" class="flex items-center gap-3">
+         </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+                 </button>
+                 <h1 class="text-xl font-semibold text-white">Jelo</h1>
+                 <div id="user-profile" class="flex items-center gap-3">
+                     <span id="user-name" class="font-medium text-gray-300 hidden sm:inline"></span>
+                     <img id="user-photo" class="w-8 h-8 rounded-full" alt="Foto de perfil">
+                     <button id="logout-button" class="text-sm text-gray-400 hover:underline hidden sm:inline">Salir</button>
+                 </div>
+                 
+            </header>
+
+            <main class="flex-grow p-4 sm:p-6 overflow-y-auto" id="chat-container">
+                <div id="welcome-screen" class="flex flex-col items-center justify-center h-full text-center">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center mb-4">
+                        <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.75L13.2625 8.2375L18.75 9.5L13.2625 10.7625L12 16.25L10.7375 10.7625L5.25 9.5L10.7375 8.2375L12 2.75Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <h2 class="text-3xl font-bold text-white">¿Cómo puedo ayudarte hoy?</h2>
+                </div>
+                <div id="chat-history" class="space-y-6"></div>
+            </main>
+
+            <footer class="p-4 sm:p-6 bg-transparent">
+                 <div id="status-indicator" class="text-gray-400 text-sm h-5 mb-2 text-center"></div>
+                 <div class="flex items-center gap-2 bg-gray-800 rounded-2xl p-2 relative">
+                    <label class="p-2 text-gray-400 hover:bg-gray-700 rounded-full transition-colors cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                        <input type="file" id="file-upload-input" class="hidden">
+                    </label>
+                    <input type="text" id="chat-input" placeholder="Escribe una pregunta..." class="flex-grow bg-transparent p-2 focus:outline-none text-white">
+                    <button id="open-canvas-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold p-2 rounded-full" title="Abrir Canvas">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                    </button>
+                    <button id="send-chat-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-2 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    </button>
+                </div>
+            </footer>
+        </div>
+    </div>
+    
+    <div id="welcome-modal" class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-gray-800 p-8 rounded-2xl shadow-lg max-w-lg w-full text-white border border-gray-700">
+            <h2 class="text-2xl font-bold mb-4">¡Bienvenido a Jelo!</h2>
+            <div class="prose prose-invert text-gray-300">
+                <p>Estoy aquí para ayudarte. Esto es lo que puedes hacer:</p>
+                <ul>
+                    <li><strong>Conversar conmigo:</strong> Pregúntame lo que quieras.</li>
+                    <li><strong>Analizar Archivos:</strong> Sube documentos (.docx, .xlsx, .txt) y te daré un resumen.</li>
+                    <li><strong>Generar Imágenes:</strong> Pídeme que cree una imagen con una descripción (ej. "crea una imagen de un tigre en la luna").</li>
+                </ul>
+                <p class="font-semibold mt-6">Próximamente:</p>
+                <ul>
+                    <li>Análisis de imágenes desde tu cámara (función temporalmente desactivada).</li>
+                    <li>Y muchas más sorpresas...</li>
+                </ul>
+            </div>
+            <button id="close-welcome-modal" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">¡Entendido!</button>
+        </div>
+    </div>
+
+    <div id="canvas-modal" class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-gray-900 rounded-2xl shadow-lg border border-gray-700 p-4 relative flex flex-col items-center max-w-3xl w-full">
+            <button id="close-canvas-btn" class="absolute top-3 right-3 text-gray-400 hover:text-white bg-gray-700 hover:bg-gray-600 rounded-full p-2" title="Cerrar Canvas">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <h3 class="text-lg font-semibold text-white mb-2">Visualizador Canvas</h3>
+            <canvas id="draw-canvas" width="600" height="400" class="bg-gray-100 rounded-xl border border-gray-600 shadow-xl mb-2"></canvas>
+            <span class="text-gray-400 text-xs mb-1">Puedes visualizar dibujos, gráficos o simulaciones aquí.</span>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>

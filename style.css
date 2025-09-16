@@ -1,0 +1,162 @@
+/* --- Estilos Generales y Dark Mode --- */
+body {
+  background: #13151a !important;
+  font-family: 'Inter', sans-serif;
+}
+
+#app-screen {
+  background: #13151a !important;
+}
+
+#history-sidebar {
+  background: #181a20 !important;
+  border-right: none !important;
+  box-shadow: 2px 0 32px #0006;
+}
+
+#chat-container {
+  background: #13151a !important;
+  padding-bottom: 60px;
+  box-shadow: 0 4px 32px #000a;
+  scroll-behavior: smooth;
+}
+
+#chat-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 1.09em;
+  color: #fff;
+  padding-left: 12px;
+}
+
+/* --- Estilos de Mensajes --- */
+.prose.max-w-lg.bg-gray-700 {
+  background: #23272f !important;
+  color: #e7eaf0 !important;
+  border-radius: 1.25rem;
+  font-size: 1.08em;
+}
+
+.prose.max-w-lg.bg-gray-800 {
+  background: #191b20 !important;
+  color: #c3cad9 !important;
+  border-radius: 1.25rem;
+  font-size: 1.08em;
+}
+
+
+/* --- Scrollbar Personalizado --- */
+::-webkit-scrollbar {
+  background: #15161b;
+  width: 9px;
+}
+::-webkit-scrollbar-thumb {
+  background: #252832;
+  border-radius: 5px;
+}
+
+
+/* --- Visualizador de código moderno --- */
+.prose pre, pre {
+  background: #181f2a;
+  color: #aee2fb;
+  border-radius: 12px;
+  padding: 1.1em 1.3em;
+  margin: 1em 0;
+  font-size: 1.07em;
+  font-family: 'Fira Mono', 'JetBrains Mono', 'SF Mono', 'Consolas', 'Menlo', monospace;
+  box-shadow: 0 2px 18px #0007, 0 1.5px 0 #36405a inset;
+  border: 1.5px solid #2c3750;
+  overflow-x: auto;
+  position: relative;
+}
+
+.prose pre code, pre code {
+  color: inherit;
+  background: none;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* Para código inline */
+.prose :not(pre) > code, :not(pre) > code {
+  background: #232e3a;
+  color: #80ffea;
+  border-radius: 6px;
+  padding: 0.15em 0.42em;
+  font-size: 0.99em;
+  font-family: 'JetBrains Mono', 'SF Mono', 'Consolas', 'Menlo', monospace;
+  font-weight: 500;
+}
+
+/* Scroll horizontal para bloques de código */
+.prose pre::-webkit-scrollbar,
+pre::-webkit-scrollbar {
+  height: 8px;
+  background: #10141a;
+}
+.prose pre::-webkit-scrollbar-thumb,
+pre::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 8px;
+}
+/* --- Estilos para Contenedor de Descarga --- */
+.file-download-container {
+  background-color: #2d3748;
+  border: 1px solid #4a5568;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-top: 0.5rem;
+}
+
+.file-download-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.file-download-title {
+  color: #e2e8f0;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.file-download-btn {
+  background-color: #3b82f6;
+  color: white;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.file-download-btn:hover {
+  background-color: #2563eb;
+}
+
+/* --- Animación de Carga (Loader) --- */
+.gemini-loader { width: 28px; height: 28px; position: relative; animation: rotate 2s linear infinite; }
+.gemini-loader .sparkle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; background: #818cf8; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+.gemini-loader .arc { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 3px solid transparent; border-top-color: #fbbf24; border-right-color: #fb7185; transform: rotate(45deg); }
+@keyframes rotate { 100% { transform: rotate(360deg); } }
+
+
+/* --- Menú Contextual e Items del Historial --- */
+.history-item { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; margin-bottom: 0.25rem; border-radius: 0.5rem; cursor: pointer; transition: background-color 0.15s ease-in-out; color: #d1d5db; font-size: 0.875rem; line-height: 1.25rem; position: relative; }
+.history-item:hover { background-color: #374151; color: #e5e7eb; }
+.history-item.active { background-color: #3b82f6; color: white; font-weight: 500; }
+.history-item-title { flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.history-item-menu-btn { background: none; border: none; padding: 0.25rem; border-radius: 0.25rem; color: #9ca3af; cursor: pointer; visibility: hidden; opacity: 0; transition: all 0.15s ease-in-out; flex-shrink: 0; }
+.history-item:hover .history-item-menu-btn, .history-item.active .history-item-menu-btn { visibility: visible; opacity: 1; }
+.history-item-menu-btn:hover { background-color: rgba(255, 255, 255, 0.2); }
+
+.context-menu { position: absolute; background-color: #2d3748; border-radius: 0.5rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); z-index: 50; min-width: 150px; display: none; padding: 0.5rem 0; right: 0.5rem; top: 50%; transform: translateY(-50%); }
+.context-menu button { display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.6rem 1rem; text-align: left; color: #e5e7eb; font-size: 0.875rem; background: none; border: none; cursor: pointer; transition: background-color 0.1s ease-in-out; }
+.context-menu button:hover { background-color: #4a5568; }
+.context-menu button svg { color: #9ca3af; }
