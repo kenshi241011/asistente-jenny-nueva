@@ -160,3 +160,32 @@ pre::-webkit-scrollbar-thumb {
 .context-menu button { display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.6rem 1rem; text-align: left; color: #e5e7eb; font-size: 0.875rem; background: none; border: none; cursor: pointer; transition: background-color 0.1s ease-in-out; }
 .context-menu button:hover { background-color: #4a5568; }
 .context-menu button svg { color: #9ca3af; }
+/* Archivo: style.css */
+
+/* --- Estilos Responsivos para Móviles --- */
+@media (max-width: 640px) {
+  /* Reduce el ancho máximo de las burbujas de chat para que no ocupen toda la pantalla */
+  .prose.max-w-lg {
+    max-width: 90%;
+  }
+
+  /* Ajusta ligeramente el tamaño de la fuente para mejor legibilidad en pantallas pequeñas */
+  body {
+    font-size: 15px;
+  }
+
+  #chat-input {
+    font-size: 1em; /* Ajusta el tamaño de la fuente del input */
+  }
+
+  /* Hace la pantalla de bienvenida un poco más compacta */
+  #welcome-screen h2 {
+    font-size: 1.5rem; /* 24px */
+    line-height: 2rem; /* 32px */
+  }
+
+  /* Oculta la barra de desplazamiento del historial en la vista móvil, ya que es un overlay */
+  #history-sidebar::-webkit-scrollbar {
+    display: none;
+  }
+}
