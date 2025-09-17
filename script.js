@@ -1,9 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, serverTimestamp, query, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, serverTimestamp, query, orderBy, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 // --- Funciones de UI ---
-function showToast(message, duration = 2000) {
+function showToast(message, duration = 3000) {
     notificationToast.textContent = message;
     notificationToast.classList.remove('opacity-0');
     setTimeout(() => {
@@ -64,7 +64,6 @@ const modelSelector = document.getElementById('model-selector');
 // =================================================================================
 // LÓGICA PARA CREAR ARCHIVOS
 // =================================================================================
-// (Las funciones generateExcel, generateWord, generatePptx se mantienen igual)
 function generateExcel(datos, fileName = "archivo.xlsx") {
     try {
         const ws = XLSX.utils.json_to_sheet(datos);
@@ -78,11 +77,13 @@ function generateExcel(datos, fileName = "archivo.xlsx") {
 }
 function generateWord(textContent, fileName = 'documento.docx') {
     try {
-        const zip = new PizZip();
-        let contentForDocx = textContent.split('\n').map(p => `<w:p><w:r><w:t>${p.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</w:t></w:r></w:p>`).join('');
-        const template = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${contentForDocx}</w:body></w:document>`;
-        zip.load(template);
-        const blob = zip.generate({ type: "blob" });
+        const zip = new PizZip(textContent);
+        const doc = new Docxtemplater(zip, {
+            paragraphLoop: true,
+            linebreaks: true,
+        });
+        doc.render(); // No data object needed if template is self-contained
+        const blob = doc.getZip().generate({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
         saveAs(blob, fileName);
     } catch (error) {
         console.error("Error al generar Word:", error);
@@ -166,23 +167,116 @@ async function signInWithProvider(providerType) {
 }
 
 function loadConversationList() {
-    // ... (Esta función se mantiene igual)
+    if (unsubscribeConversations) unsubscribeConversations();
+    if (!userId) return;
+
+    const conversationsRef = collection(db, `artifacts/${appId}/users/${userId}/conversations`);
+    const q = query(conversationsRef, orderBy('timestamp', 'desc'));
+
+    unsubscribeConversations = onSnapshot(q, (snapshot) => {
+        historyList.innerHTML = ''; // Limpia la lista actual
+        if (snapshot.empty) {
+            historyList.innerHTML = '<p class="text-gray-500 text-sm p-2">No hay chats guardados.</p>';
+            return;
+        }
+        snapshot.forEach(doc => {
+            const convo = doc.data();
+            const historyItem = createHistoryItem(doc.id, convo.title);
+            historyList.appendChild(historyItem);
+        });
+    }, (error) => {
+        console.error("Error al cargar el historial:", error);
+        historyList.innerHTML = '<p class="text-red-400 text-sm p-2">Error al cargar historial.</p>';
+    });
 }
 
 function createHistoryItem(id, title) {
-    // ... (Esta función se mantiene igual)
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    item.dataset.id = id;
+
+    const titleSpan = document.createElement('span');
+    titleSpan.className = 'history-item-title';
+    titleSpan.textContent = title || 'Nuevo Chat';
+    item.appendChild(titleSpan);
+
+    // Event listener to load conversation on click
+    item.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+        document.querySelectorAll('.history-item.active').forEach(el => el.classList.remove('active'));
+        item.classList.add('active');
+        loadConversation(id);
+    });
+
+    return item;
 }
 
 async function handleContextMenuAction(e, action, convoId, currentTitle) {
-    // ... (Esta función se mantiene igual)
+    e.stopPropagation();
+    if (activeContextMenu) activeContextMenu.remove();
+
+    if (action === 'rename') {
+        const newTitle = prompt("Ingresa el nuevo título para el chat:", currentTitle);
+        if (newTitle && newTitle.trim() !== "") {
+            const convoRef = doc(db, `artifacts/${appId}/users/${userId}/conversations`, convoId);
+            await updateDoc(convoRef, { title: newTitle.trim() });
+            showToast("Chat renombrado.");
+        }
+    } else if (action === 'delete') {
+        if (confirm("¿Estás seguro de que quieres eliminar este chat? Esta acción no se puede deshacer.")) {
+            await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/conversations`, convoId));
+            if (currentConversationId === convoId) {
+                startNewChat();
+            }
+            showToast("Chat eliminado.");
+        }
+    }
 }
 
 function loadConversation(convoId) {
-    // ... (Esta función se mantiene igual)
+    if (!userId || !convoId) return;
+    
+    isTemporaryChat = false;
+    currentConversationId = convoId;
+    chatContext = [];
+    chatContainer.innerHTML = ''; // Clear current chat
+    welcomeScreen.classList.add('hidden'); // Hide welcome
+
+    const convoRef = doc(db, `artifacts/${appId}/users/${userId}/conversations`, convoId);
+
+    onSnapshot(convoRef, (docSnap) => {
+        if (docSnap.exists()) {
+            const conversationData = docSnap.data();
+            chatTitle.textContent = conversationData.title || 'Chat';
+            chatContext = conversationData.messages || [];
+            
+            // Render messages
+            chatContainer.innerHTML = ''; // Clear just in case
+            chatContext.forEach(message => {
+                appendMessage(message.parts[0].text, message.role);
+            });
+        } else {
+            console.error("Conversation does not exist.");
+            showToast("Error: Could not load conversation.");
+            startNewChat();
+        }
+    });
 }
 
 function startNewChat(isTemporary = false) {
-    // ... (Esta función se mantiene igual)
+    currentConversationId = null;
+    chatContext = [];
+    chatContainer.innerHTML = ''; // Clear chat
+    welcomeScreen.classList.remove('hidden'); // Show welcome screen
+    chatTitle.textContent = isTemporary ? 'Chat Temporal' : 'Jelo';
+    isTemporaryChat = isTemporary;
+
+    // Deselect any active item in history
+    document.querySelectorAll('.history-item.active').forEach(el => el.classList.remove('active'));
+    
+    if (isTemporary) {
+      showToast("Estás en un chat temporal. El historial no se guardará.");
+    }
 }
 
 async function handleChat(promptOverride = null, isFileContext = false) {
@@ -200,7 +294,7 @@ async function handleChat(promptOverride = null, isFileContext = false) {
             const newConvoRef = await addDoc(collection(db, `artifacts/${appId}/users/${userId}/conversations`), {
                 title: userPrompt.substring(0, 30),
                 timestamp: serverTimestamp(),
-                messages: [] // Inicia vacío, se actualizará después
+                messages: [] // Starts empty, will be updated
             });
             currentConversationId = newConvoRef.id;
         }
@@ -218,7 +312,7 @@ async function handleChat(promptOverride = null, isFileContext = false) {
         } else if (provider === 'groq') {
             const apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
             const payload = {
-                model: 'llama-3.1-8b-instant', // MODELO CORREGIDO
+                model: 'llama-3.1-8b-instant',
                 messages: tempContext.map(msg => ({
                     role: msg.role === 'model' ? 'assistant' : 'user',
                     content: msg.parts[0].text
@@ -235,22 +329,27 @@ async function handleChat(promptOverride = null, isFileContext = false) {
         }
 
         if (aiResponse) {
-            chatContext.push({ role: 'user', parts: [{ text: userPrompt }] }); // Guarda el prompt del usuario
-            chatContext.push({ role: 'model', parts: [{ text: aiResponse }] }); // Guarda la respuesta de la IA
+            chatContext.push({ role: 'user', parts: [{ text: userPrompt }] });
+            chatContext.push({ role: 'model', parts: [{ text: aiResponse }] });
             updateMessage(aiMessageBubble, aiResponse);
+            
+            if (!isTemporaryChat && currentConversationId) {
+                const convoRef = doc(db, `artifacts/${appId}/users/${userId}/conversations`, currentConversationId);
+                await setDoc(convoRef, { messages: chatContext, title: chatContext[0].parts[0].text.substring(0, 30), timestamp: serverTimestamp() }, { merge: true });
+            }
+
         } else {
-            throw new Error("No se recibió una respuesta válida del proveedor.");
+            throw new Error("No valid response received from provider.");
         }
 
     } catch (error) {
-        updateMessage(aiMessageBubble, `Lo siento, ocurrió un error: ${error.message}`);
+        updateMessage(aiMessageBubble, `Sorry, an error occurred: ${error.message}`);
     } finally {
         setChatUIState(false);
     }
 }
 
 function parseMarkdown(text) {
-    // FUNCIÓN COMPLETA Y CORREGIDA
     let processedHtml = text;
     const fileBlockRegex = /```(excel|word|pptx)\n([\s\S]*?)\n```/g;
     processedHtml = processedHtml.replace(fileBlockRegex, (match, type, content) => {
@@ -261,9 +360,9 @@ function parseMarkdown(text) {
           <div class="file-download-header">
             <span class="file-download-title">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Archivo listo para descargar
+              File ready to download
             </span>
-            <button class="file-download-btn" data-type="${type}">Descargar ${fileTypes[type]}</button>
+            <button class="file-download-btn" data-type="${type}">Download ${fileTypes[type]}</button>
           </div>
           <div class="file-data" style="display:none;">${content.trim()}</div>
         </div>`;
@@ -303,20 +402,112 @@ function parseMarkdown(text) {
     return finalHtml.replace(/<p><\/p>/g, '');
 }
 
-function appendMessage(text, role, shouldSave = false) {
-    // ... (Esta función se mantiene igual)
+function appendMessage(text, role) {
+    welcomeScreen.classList.add('hidden');
+    const bubble = document.createElement('div');
+    bubble.classList.add('prose', 'max-w-lg', 'w-fit', 'p-4', 'mb-4');
+    
+    if (role === 'user') {
+        bubble.classList.add('bg-gray-700', 'self-end', 'ml-auto');
+    } else {
+        bubble.classList.add('bg-gray-800', 'self-start');
+        if (!text) {
+             bubble.innerHTML = '<div class="gemini-loader"><div class="sparkle"></div><div class="arc"></div></div>';
+        }
+    }
+
+    if (text) {
+        bubble.innerHTML = parseMarkdown(text);
+    }
+    
+    chatContainer.appendChild(bubble);
+
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    
+    return bubble;
 }
 
 function updateMessage(bubble, text) {
-    // ... (Esta función se mantiene igual)
+    bubble.innerHTML = parseMarkdown(text);
+    
+    bubble.querySelectorAll('.file-download-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const container = button.closest('.file-download-container');
+            const dataContainer = container.querySelector('.file-data');
+            const type = button.dataset.type;
+            const content = dataContainer.textContent;
+
+            try {
+                if (type === 'excel') {
+                    const jsonData = JSON.parse(content);
+                    generateExcel(jsonData);
+                } else if (type === 'word') {
+                    generateWord(content);
+                } else if (type === 'pptx') {
+                    generatePptx(content);
+                }
+            } catch (error) {
+                console.error(`Error processing data for ${type}:`, error);
+                alert(`Error generating file. Ensure content format is correct.`);
+            }
+        });
+    });
+
+    chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
 function setChatUIState(isLoading) {
-    // ... (Esta función se mantiene igual)
+    if (isLoading) {
+        statusIndicator.textContent = 'Jelo is thinking...';
+        sendChatButton.disabled = true;
+        chatInput.disabled = true;
+        sendChatButton.classList.add('opacity-50', 'cursor-not-allowed');
+    } else {
+        statusIndicator.textContent = '';
+        sendChatButton.disabled = false;
+        chatInput.disabled = false;
+        chatInput.focus();
+        sendChatButton.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
 }
 
 async function handleFileUpload(event) {
-    // ... (Esta función se mantiene igual)
+    const file = event.target.files[0];
+    if (!file) return;
+
+    statusIndicator.textContent = `Analizando ${file.name}...`;
+    let fileContent = "";
+
+    try {
+        if (file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") { // .docx
+            const arrayBuffer = await file.arrayBuffer();
+            const result = await mammoth.extractRawText({ arrayBuffer });
+            fileContent = result.value;
+        } else if (file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") { // .xlsx
+            const arrayBuffer = await file.arrayBuffer();
+            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const json = XLSX.utils.sheet_to_json(worksheet);
+            fileContent = JSON.stringify(json, null, 2);
+        } else if (file.type === "text/plain") { // .txt
+            fileContent = await file.text();
+        } else {
+            showToast("Formato de archivo no soportado.");
+            return;
+        }
+
+        const prompt = `Aquí está el contenido de un archivo llamado "${file.name}". Por favor, resúmelo y dame los puntos más importantes:\n\n---\n\n${fileContent}`;
+        appendMessage(`Archivo subido: <strong>${file.name}</strong>. A continuación se generará un resumen.`, 'user');
+        handleChat(prompt, true);
+
+    } catch (error) {
+        console.error("Error procesando el archivo:", error);
+        showToast("Error al leer el archivo.");
+    } finally {
+        statusIndicator.textContent = '';
+        fileUploadInput.value = ''; // Reset input
+    }
 }
 
 // --- Event Listeners ---
@@ -327,7 +518,7 @@ logoutButton.addEventListener('click', () => signOut(auth));
 newChatButton.addEventListener('click', () => startNewChat(false));
 
 sendChatButton.addEventListener('click', () => handleChat());
-chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleChat(); });
+chatInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChat(); } });
 fileUploadInput.addEventListener('change', handleFileUpload);
 menuToggle.addEventListener('click', () => {
     historySidebar.classList.remove('-translate-x-full');
