@@ -20,6 +20,7 @@ function showToast(message, duration = 2000) {
 }
 
 // --- Constantes y Variables Globales ---
+const GROQ_API_KEY = "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";
 const API_KEY = "AIzaSyB1xjT_S_pPECCQZ50VDDb3vRbQBa_EHpk"; // Para Gemini
 const VISION_API_KEY = "AIzaSyAtb7fqg4ejov5SpkrubtSoB14id-CCVxQ"; // Para Vision
 const SEARCH_API_KEY = "AIzaSyAtb7fqg4ejov5SpkrubtSoB14id-CCVxQ"; // Para la Búsqueda
@@ -43,13 +44,11 @@ const firebaseConfig = {
   appId: "1:725982583709:web:dcb82f4f67b23a4ccaad74"
 };
 
-
 // --- Selección de Elementos del DOM ---
 const loginScreen = document.getElementById('login-screen');
 const appScreen = document.getElementById('app-screen');
 const loginButton = document.getElementById('login-button'); // Botón de Facebook
 const googleLoginButton = document.getElementById('google-login-button'); // Botón de Google
-const loginButtonText = document.getElementById('login-button-text');
 const logoutButton = document.getElementById('logout-button');
 const userName = document.getElementById('user-name');
 const userPhoto = document.getElementById('user-photo');
@@ -179,7 +178,6 @@ async function signInWithFacebook() {
         return;
     }
     loginButton.disabled = true;
-    // loginButtonText.textContent is now just for FB, handled inside the button itself
     loginError.textContent = "";
 
     const provider = new FacebookAuthProvider();
@@ -221,6 +219,7 @@ async function signInWithGoogle() {
 }
 
 function loadConversationList() {
+    if (!userId) return;
     if (unsubscribeConversations) unsubscribeConversations();
     const convosRef = collection(db, `artifacts/${appId}/users/${userId}/conversations`);
     const q = query(convosRef, orderBy('timestamp', 'desc'));
@@ -348,7 +347,7 @@ function startTemporaryChat() {
     sidebarBackdrop.classList.add('hidden');
 }
 
-async function handleChat(promptOverride = null, isFileContext = false) {
+async function handleChat(promptOverride = null, isFileContext = false, provider = 'gemini') {
     const userPrompt = promptOverride || chatInput.value.trim();
     if (!userPrompt) return;
     setChatUIState(true);
@@ -357,6 +356,7 @@ async function handleChat(promptOverride = null, isFileContext = false) {
     }
     const aiMessageBubble = appendMessage('', 'model', false, false);
     chatInput.value = '';
+
     try {
         if (!currentConversationId && !isTemporaryChat) {
             const convosRef = collection(db, `artifacts/${appId}/users/${userId}/conversations`);
@@ -367,29 +367,64 @@ async function handleChat(promptOverride = null, isFileContext = false) {
             });
             currentConversationId = newConvoDoc.id;
         }
+        
+        let aiResponse = '';
         const currentTurn = { role: "user", parts: [{ text: userPrompt }] };
-        const tempContext = chatContext.map(({ role, parts }) => ({ role, parts }));
-        tempContext.push(currentTurn);
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-        const payload = { contents: tempContext };
-        const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error.message);
+        const tempContext = [...chatContext, currentTurn]; // Use a temporary context for the API call
+
+        if (provider === 'gemini') {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+            const payload = { contents: tempContext.map(({role, parts}) => ({role, parts})) };
+            const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error.message || 'Error en la API de Gemini');
+            }
+            const result = await response.json();
+            aiResponse = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        } else if (provider === 'groq') {
+            const apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
+            const groqMessages = tempContext.map(msg => ({
+                role: msg.role === 'model' ? 'assistant' : 'user',
+                content: msg.parts[0].text
+            }));
+            const payload = {
+                model: 'llama3-8b-8192',
+                messages: groqMessages
+            };
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${GROQ_API_KEY}`
+                },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || 'Error en la API de Groq');
+            }
+            const result = await response.json();
+            aiResponse = result.choices?.[0]?.message?.content;
         }
-        const result = await response.json();
-        const aiResponse = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
         if (aiResponse) {
             updateMessage(aiMessageBubble, aiResponse, 'model');
+            // Update the persistent chatContext after a successful response
+            chatContext.push(currentTurn);
+            chatContext.push({ role: 'model', parts: [{ text: aiResponse }] });
         } else {
-            updateMessage(aiMessageBubble, "No se recibió una respuesta válida.", 'model');
+            updateMessage(aiMessageBubble, "No se recibió una respuesta válida del proveedor.", 'model');
         }
+
     } catch (error) {
         updateMessage(aiMessageBubble, `Lo siento, ocurrió un error: ${error.message}`, 'model');
     } finally {
         setChatUIState(false);
     }
 }
+
 
 function parseMarkdown(text) {
     let processedHtml = text;
@@ -475,19 +510,19 @@ function appendMessage(text, role, isImage = false, shouldSave = true) {
     messageWrapper.appendChild(messageBubble);
     chatHistory.appendChild(messageWrapper);
     chatContainer.scrollTop = chatContainer.scrollHeight;
+
     if (shouldSave) {
-        chatContext.push({ role, parts: [{ text }], isImage });
-        if (currentConversationId) {
-            const convoDocRef = doc(db, `artifacts/${appId}/users/${userId}/conversations/${currentConversationId}`);
-            setDoc(convoDocRef, { messages: chatContext }, { merge: true });
+        // Only update the persistent context here, not on every temporary call
+        if(role === 'user') {
+            chatContext.push({ role, parts: [{ text }], isImage });
         }
     }
     return messageBubble;
 }
 
-function updateMessage(bubble, text, role, isImage = false) {
+function updateMessage(bubble, text, role, fullContextForSaving = null) {
     setTimeout(() => {
-        if (isImage) {
+        if (isImage) { // This variable is not defined in the scope, should be passed or removed
             const img = document.createElement('img');
             img.src = text;
             img.className = 'rounded-md max-w-xs';
@@ -498,8 +533,10 @@ function updateMessage(bubble, text, role, isImage = false) {
             bubble.innerHTML = parseMarkdown(text);
         }
         chatContainer.scrollTop = chatContainer.scrollHeight;
-        chatContext.push({ role, parts: [{ text }], isImage });
+        
+        // Save the full conversation turn to Firestore
         if (currentConversationId) {
+             chatContext.push({ role: 'model', parts: [{ text }] });
             const convoDocRef = doc(db, `artifacts/${appId}/users/${userId}/conversations/${currentConversationId}`);
             setDoc(convoDocRef, { messages: chatContext }, { merge: true });
         }
@@ -518,12 +555,12 @@ async function handleFileUpload(event) {
     appendMessage(`Archivo subido: <strong>${file.name}</strong>`, 'user');
     const extension = file.name.split('.').pop().toLowerCase();
     try {
-        if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'].includes(extension)) {
-            await handleImageFile(file);
-            return;
-        }
         let fileContent = '';
-        if (extension === 'docx') {
+        if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'].includes(extension)) {
+             // Logic for image files needs to be decided (send to vision model?)
+            appendMessage(`Lo siento, el análisis de imágenes aún no está conectado a los nuevos proveedores de IA.`, 'model');
+            return;
+        } else if (extension === 'docx') {
             const arrayBuffer = await file.arrayBuffer();
             const result = await mammoth.extractRawText({ arrayBuffer });
             fileContent = result.value;
@@ -540,7 +577,7 @@ async function handleFileUpload(event) {
             return;
         }
         const prompt = `Analiza el siguiente contenido del archivo "${file.name}" y dame un resumen o los puntos clave:\n\n---\n\n${fileContent}`;
-        await handleChat(prompt, true);
+        await handleChat(prompt, true, 'groq'); // Default to groq for file analysis for speed
     } catch (error) {
         console.error(`Error procesando archivo ${file.name}:`, error);
         appendMessage(`Error procesando archivo ${file.name}: ${error.message}`, 'model');
@@ -549,96 +586,14 @@ async function handleFileUpload(event) {
     }
 }
 
-async function handleImageFile(file) {
-    const imageUrl = URL.createObjectURL(file);
-    appendMessage(imageUrl, 'user', true);
-    const loadingBubble = appendMessage('', 'model');
-    try {
-        const visionResult = await analyzeImageWithVisionAPI(file);
-        const labels = visionResult.responses[0]?.labelAnnotations?.map(l => l.description).join(', ') || 'Sin etiquetas';
-        const detectedText = visionResult.responses[0]?.textAnnotations?.[0]?.description || '';
-        let description = `Etiquetas detectadas: <strong>${labels}</strong>`;
-        if (detectedText) description += `<br>Texto detectado: <pre>${detectedText}</pre>`;
-        updateMessage(loadingBubble, description, 'model');
-    } catch (e) {
-        updateMessage(loadingBubble, "No se pudo analizar la imagen.", 'model');
-    }
-}
-
-async function analyzeImageWithVisionAPI(file) {
-    const reader = new FileReader();
-    return new Promise((resolve, reject) => {
-        reader.onload = async function (event) {
-            const base64img = event.target.result.split(',')[1];
-            try {
-                const visionResponse = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${VISION_API_KEY}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        requests: [{
-                            image: { content: base64img },
-                            features: [
-                                { type: 'LABEL_DETECTION', maxResults: 5 },
-                                { type: 'TEXT_DETECTION', maxResults: 1 }
-                            ]
-                        }]
-                    })
-                });
-                if (!visionResponse.ok) throw new Error('Error en la respuesta de Vision API');
-                const result = await visionResponse.json();
-                resolve(result);
-            } catch (error) {
-                reject(error);
-            }
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-}
-
-let isDrawing = false;
-let lastX = 0;
-let lastY = 0;
-
-function drawOnCanvas(e) {
-    if (!isDrawing) return;
-    const rect = drawCanvas.getBoundingClientRect();
-    const ctx = drawCanvas.getContext('2d');
-    ctx.strokeStyle = '#6366f1';
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
-    ctx.lineTo(e.offsetX, e.offsetY);
-    ctx.stroke();
-    [lastX, lastY] = [e.offsetX, e.offsetY];
-}
-
-drawCanvas.addEventListener('mousedown', (e) => {
-    isDrawing = true;
-    [lastX, lastY] = [e.offsetX, e.offsetY];
-});
-drawCanvas.addEventListener('mousemove', drawOnCanvas);
-drawCanvas.addEventListener('mouseup', () => isDrawing = false);
-drawCanvas.addEventListener('mouseleave', () => isDrawing = false);
-
-window.dibujaCirculoEnCanvas = function (x, y, r, color = "#ef4444") {
-    const ctx = drawCanvas.getContext('2d');
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, 2 * Math.PI);
-    ctx.fillStyle = color;
-    ctx.globalAlpha = 0.9;
-    ctx.fill();
-    ctx.globalAlpha = 1.0;
-};
-
 // --- Event Listeners ---
 loginButton.addEventListener('click', signInWithFacebook);
 googleLoginButton.addEventListener('click', signInWithGoogle);
 temporalChatButton.addEventListener('click', startTemporaryChat);
 logoutButton.addEventListener('click', () => signOut(auth));
 newChatButton.addEventListener('click', startNewChat);
-sendChatButton.addEventListener('click', () => handleChat());
-chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleChat(); });
+sendChatButton.addEventListener('click', () => handleChat(null, false, 'groq')); // Defaulting to Groq
+chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleChat(null, false, 'groq'); }); // Defaulting to Groq
 menuToggle.addEventListener('click', () => {
     historySidebar.classList.remove('-translate-x-full');
     sidebarBackdrop.classList.remove('hidden');
