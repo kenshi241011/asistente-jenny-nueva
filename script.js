@@ -20,11 +20,8 @@ function showToast(message, duration = 2000) {
 }
 
 // --- Constantes y Variables Globales ---
-const GROQ_API_KEY = "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";
 const API_KEY = "AIzaSyB1xjT_S_pPECCQZ50VDDb3vRbQBa_EHpk"; // Para Gemini
-const VISION_API_KEY = "AIzaSyAtb7fqg4ejov5SpkrubtSoB14id-CCVxQ"; // Para Vision
-const SEARCH_API_KEY = "AIzaSyAtb7fqg4ejov5SpkrubtSoB14id-CCVxQ"; // Para la Búsqueda
-const SEARCH_ENGINE_ID = "4385768c191a0454d";
+const GROQ_API_KEY = "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"; // <-- REEMPLAZA CON TU CLAVE DE GROQ
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-jenny-app';
 
 let app, auth, db, userId;
@@ -74,6 +71,7 @@ const drawCanvas = document.getElementById('draw-canvas');
 const temporalChatButton = document.getElementById('temporal-chat-button');
 const chatTitle = document.getElementById('chat-title');
 const notificationToast = document.getElementById('notification-toast');
+const modelSelector = document.getElementById('model-selector');
 
 // =================================================================================
 // INICIO DE LA LÓGICA PARA CREAR ARCHIVOS
@@ -410,10 +408,10 @@ async function handleChat(promptOverride = null, isFileContext = false, provider
         }
 
         if (aiResponse) {
-            updateMessage(aiMessageBubble, aiResponse, 'model');
             // Update the persistent chatContext after a successful response
             chatContext.push(currentTurn);
             chatContext.push({ role: 'model', parts: [{ text: aiResponse }] });
+            updateMessage(aiMessageBubble, aiResponse, 'model');
         } else {
             updateMessage(aiMessageBubble, "No se recibió una respuesta válida del proveedor.", 'model');
         }
@@ -424,7 +422,6 @@ async function handleChat(promptOverride = null, isFileContext = false, provider
         setChatUIState(false);
     }
 }
-
 
 function parseMarkdown(text) {
     let processedHtml = text;
@@ -479,7 +476,7 @@ function parseMarkdown(text) {
     return finalHtml.replace(/<p><\/p>/g, '');
 }
 
-function appendMessage(text, role, isImage = false, shouldSave = true) {
+function appendMessage(text, role, isImage = false) {
     welcomeScreen.classList.add('hidden');
     const messageWrapper = document.createElement('div');
     messageWrapper.className = `flex items-start gap-3 ${role === 'user' ? 'justify-end' : 'justify-start'}`;
@@ -510,19 +507,13 @@ function appendMessage(text, role, isImage = false, shouldSave = true) {
     messageWrapper.appendChild(messageBubble);
     chatHistory.appendChild(messageWrapper);
     chatContainer.scrollTop = chatContainer.scrollHeight;
-
-    if (shouldSave) {
-        // Only update the persistent context here, not on every temporary call
-        if(role === 'user') {
-            chatContext.push({ role, parts: [{ text }], isImage });
-        }
-    }
+    
     return messageBubble;
 }
 
-function updateMessage(bubble, text, role, fullContextForSaving = null) {
+function updateMessage(bubble, text, role, isImage = false) {
     setTimeout(() => {
-        if (isImage) { // This variable is not defined in the scope, should be passed or removed
+        if (isImage) {
             const img = document.createElement('img');
             img.src = text;
             img.className = 'rounded-md max-w-xs';
@@ -535,8 +526,7 @@ function updateMessage(bubble, text, role, fullContextForSaving = null) {
         chatContainer.scrollTop = chatContainer.scrollHeight;
         
         // Save the full conversation turn to Firestore
-        if (currentConversationId) {
-             chatContext.push({ role: 'model', parts: [{ text }] });
+        if (currentConversationId && !isTemporaryChat) {
             const convoDocRef = doc(db, `artifacts/${appId}/users/${userId}/conversations/${currentConversationId}`);
             setDoc(convoDocRef, { messages: chatContext }, { merge: true });
         }
@@ -557,8 +547,7 @@ async function handleFileUpload(event) {
     try {
         let fileContent = '';
         if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'].includes(extension)) {
-             // Logic for image files needs to be decided (send to vision model?)
-            appendMessage(`Lo siento, el análisis de imágenes aún no está conectado a los nuevos proveedores de IA.`, 'model');
+            appendMessage(`Lo siento, el análisis de imágenes aún no está implementado con los nuevos proveedores de IA.`, 'model');
             return;
         } else if (extension === 'docx') {
             const arrayBuffer = await file.arrayBuffer();
@@ -576,8 +565,14 @@ async function handleFileUpload(event) {
             appendMessage(`Lo siento, no puedo leer archivos .${extension}.`, 'model');
             return;
         }
+
+        if(!fileContent) {
+            throw new Error("No se pudo extraer contenido del archivo.");
+        }
+
         const prompt = `Analiza el siguiente contenido del archivo "${file.name}" y dame un resumen o los puntos clave:\n\n---\n\n${fileContent}`;
-        await handleChat(prompt, true, 'groq'); // Default to groq for file analysis for speed
+        const selectedProvider = modelSelector.value;
+        await handleChat(prompt, true, selectedProvider);
     } catch (error) {
         console.error(`Error procesando archivo ${file.name}:`, error);
         appendMessage(`Error procesando archivo ${file.name}: ${error.message}`, 'model');
@@ -592,8 +587,18 @@ googleLoginButton.addEventListener('click', signInWithGoogle);
 temporalChatButton.addEventListener('click', startTemporaryChat);
 logoutButton.addEventListener('click', () => signOut(auth));
 newChatButton.addEventListener('click', startNewChat);
-sendChatButton.addEventListener('click', () => handleChat(null, false, 'groq')); // Defaulting to Groq
-chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleChat(null, false, 'groq'); }); // Defaulting to Groq
+
+sendChatButton.addEventListener('click', () => {
+    const selectedProvider = modelSelector.value;
+    handleChat(null, false, selectedProvider);
+});
+chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        const selectedProvider = modelSelector.value;
+        handleChat(null, false, selectedProvider);
+    }
+});
+
 menuToggle.addEventListener('click', () => {
     historySidebar.classList.remove('-translate-x-full');
     sidebarBackdrop.classList.remove('hidden');
