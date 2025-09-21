@@ -1,1148 +1,191 @@
-/* === LIQUID GLASS THEME COMPLETO === */
-
-/* Configuración base con gradientes animados */
-:root {
-    --glass-bg: rgba(255, 255, 255, 0.08);
-    --glass-border: rgba(255, 255, 255, 0.15);
-    --glass-shadow: rgba(0, 0, 0, 0.3);
-    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-}
-
-/* Reset básico */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-/* Fondo animado principal */
+/* --- Estilos Generales y Dark Mode --- */
 body {
-    font-family: 'Inter', sans-serif !important;
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    background: linear-gradient(135deg, 
-        #1a1a2e 0%, 
-        #16213e 25%, 
-        #0f3460 50%, 
-        #533483 75%, 
-        #1a1a2e 100%
-    ) !important;
-    background-size: 400% 400% !important;
-    animation: gradientFlow 15s ease infinite;
-    overflow-x: hidden;
+  background: #13151a !important;
+  font-family: 'Inter', sans-serif;
 }
 
-/* Animación del fondo */
-@keyframes gradientFlow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-/* === PANTALLA DE LOGIN === */
-#login-screen {
-    width: 100% !important;
-    height: 100vh !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 1rem !important;
-    background: linear-gradient(135deg, 
-        #1a1a2e 0%, 
-        #16213e 25%, 
-        #0f3460 50%, 
-        #533483 75%, 
-        #1a1a2e 100%
-    ) !important;
-    background-size: 400% 400% !important;
-    animation: gradientFlow 15s ease infinite !important;
-}
-
-#login-screen .text-center {
-    background: rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(25px) !important;
-    -webkit-backdrop-filter: blur(25px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 24px !important;
-    padding: 2rem !important;
-    max-width: 400px !important;
-    width: 100% !important;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4) !important;
-    text-align: center !important;
-    position: relative !important;
-    overflow: hidden !important;
-}
-
-#login-screen .text-center::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.6), 
-        transparent
-    );
-}
-
-#login-screen .w-24 {
-    width: 80px !important;
-    height: 80px !important;
-    background: var(--accent-gradient) !important;
-    border-radius: 50% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: 0 auto 2rem auto !important;
-    box-shadow: 0 10px 30px rgba(79, 172, 254, 0.3) !important;
-    animation: float 3s ease-in-out infinite !important;
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-}
-
-#login-screen h1 {
-    color: white !important;
-    font-size: 2.5rem !important;
-    font-weight: 700 !important;
-    margin-bottom: 0.5rem !important;
-}
-
-#login-screen p {
-    color: rgba(255, 255, 255, 0.8) !important;
-    margin-bottom: 2rem !important;
-    font-size: 1rem !important;
-}
-
-/* Botones de login */
-#login-button,
-#google-login-button {
-    background: rgba(255, 255, 255, 0.15) !important;
-    backdrop-filter: blur(10px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 12px !important;
-    padding: 12px 24px !important;
-    color: white !important;
-    font-weight: 600 !important;
-    text-decoration: none !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 12px !important;
-    transition: all 0.3s ease !important;
-    cursor: pointer !important;
-    width: 100% !important;
-    justify-content: center !important;
-    margin-bottom: 1rem !important;
-    font-size: 1rem !important;
-}
-
-#login-button {
-    background: linear-gradient(135deg, 
-        rgba(24, 119, 242, 0.8), 
-        rgba(24, 119, 242, 0.6)
-    ) !important;
-}
-
-#google-login-button {
-    background: rgba(255, 255, 255, 0.9) !important;
-    color: #333 !important;
-}
-
-#login-button:hover,
-#google-login-button:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3) !important;
-}
-
-#login-button:hover {
-    background: linear-gradient(135deg, 
-        rgba(24, 119, 242, 0.9), 
-        rgba(24, 119, 242, 0.7)
-    ) !important;
-}
-
-#google-login-button:hover {
-    background: rgba(255, 255, 255, 1) !important;
-}
-
-#login-error {
-    color: #ff6b6b !important;
-    margin-top: 1rem !important;
-    min-height: 1.25rem !important;
-    font-size: 0.875rem !important;
-}
-
-/* === APP SCREEN === */
 #app-screen {
-    background: transparent !important;
-    min-height: 100vh !important;
-    display: flex !important;
-    width: 100% !important;
-    height: 100vh !important;
-    position: relative !important;
+  background: #13151a !important;
 }
 
-/* === SIDEBAR === */
 #history-sidebar {
-    background: rgba(255, 255, 255, 0.08) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
-    width: 256px !important;
-    padding: 1.5rem !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 1rem !important;
-    position: relative !important;
-    box-shadow: 2px 0 32px rgba(0, 0, 0, 0.4) !important;
-    height: 100vh !important;
-    overflow-y: auto !important;
+  background: #181a20 !important;
+  border-right: none !important;
+  box-shadow: 2px 0 32px #0006;
 }
 
-#history-sidebar::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 1px;
-    height: 100%;
-    background: linear-gradient(180deg, 
-        transparent,
-        rgba(255, 255, 255, 0.3),
-        transparent
-    );
-}
-
-/* Botones del sidebar */
-#new-chat-button,
-#temporal-chat-button {
-    background: rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(15px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    border-radius: 12px !important;
-    padding: 12px 16px !important;
-    color: white !important;
-    text-align: left !important;
-    cursor: pointer !important;
-    transition: all 0.3s ease !important;
-    font-weight: 500 !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 12px !important;
-    font-size: 0.875rem !important;
-    width: 100% !important;
-}
-
-#new-chat-button {
-    background: var(--primary-gradient) !important;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
-}
-
-#temporal-chat-button {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border: 1px dashed rgba(255, 255, 255, 0.2) !important;
-}
-
-#new-chat-button:hover,
-#temporal-chat-button:hover {
-    background: rgba(255, 255, 255, 0.2) !important;
-    transform: translateX(4px) !important;
-}
-
-#new-chat-button:hover {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
-}
-
-/* Título del historial */
-#history-sidebar h2 {
-    font-size: 0.875rem !important;
-    font-weight: 600 !important;
-    color: rgba(255, 255, 255, 0.7) !important;
-    margin: 1.5rem 0 0.75rem 0.5rem !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-}
-
-/* Lista del historial */
-#history-list {
-    flex: 1 !important;
-    overflow-y: auto !important;
-    padding-right: 4px !important;
-}
-
-/* === MAIN CONTENT === */
-#app-screen .flex-1 {
-    flex: 1 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    height: 100vh !important;
-    overflow: hidden !important;
-}
-
-/* === HEADER === */
-header {
-    background: rgba(255, 255, 255, 0.08) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
-    padding: 1rem 1.5rem !important;
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    box-shadow: 0 1px 20px rgba(0, 0, 0, 0.2) !important;
-    flex-shrink: 0 !important;
-}
-
-#chat-title {
-    color: white !important;
-    font-size: 1.25rem !important;
-    font-weight: 600 !important;
-    margin: 0 !important;
-}
-
-#user-profile {
-    display: flex !important;
-    align-items: center !important;
-    gap: 12px !important;
-}
-
-#user-photo {
-    width: 40px !important;
-    height: 40px !important;
-    border-radius: 50% !important;
-    border: 2px solid rgba(255, 255, 255, 0.3) !important;
-    object-fit: cover !important;
-}
-
-#user-name {
-    color: rgba(255, 255, 255, 0.9) !important;
-    font-weight: 500 !important;
-    font-size: 0.875rem !important;
-}
-
-#logout-button {
-    background: none !important;
-    border: none !important;
-    color: rgba(255, 255, 255, 0.7) !important;
-    cursor: pointer !important;
-    font-size: 0.875rem !important;
-    transition: color 0.3s ease !important;
-}
-
-#logout-button:hover {
-    color: white !important;
-}
-
-#menu-toggle {
-    background: none !important;
-    border: none !important;
-    color: rgba(255, 255, 255, 0.7) !important;
-    padding: 0.5rem !important;
-    cursor: pointer !important;
-    border-radius: 8px !important;
-    transition: all 0.3s ease !important;
-    display: none !important;
-}
-
-#menu-toggle:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: white !important;
-}
-
-/* === CHAT CONTAINER === */
 #chat-container {
-    flex: 1 !important;
-    padding: 2rem !important;
-    overflow-y: auto !important;
-    background: transparent !important;
-    scroll-behavior: smooth !important;
-}
-
-main {
-    flex: 1 !important;
-    overflow-y: auto !important;
-}
-
-/* Welcome screen */
-#welcome-screen {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    height: 100% !important;
-    text-align: center !important;
-    color: white !important;
-}
-
-#welcome-screen .w-16 {
-    width: 80px !important;
-    height: 80px !important;
-    border-radius: 50% !important;
-    background: var(--accent-gradient) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin-bottom: 2rem !important;
-    box-shadow: 0 10px 30px rgba(79, 172, 254, 0.3) !important;
-    animation: float 3s ease-in-out infinite !important;
-}
-
-#welcome-screen h2 {
-    font-size: 2.25rem !important;
-    font-weight: 700 !important;
-    margin-bottom: 1rem !important;
-    color: white !important;
-}
-
-/* === CHAT MESSAGES === */
-#chat-history {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 1.5rem !important;
-}
-
-.prose {
-    color: white !important;
-    max-width: none !important;
-}
-
-.prose.max-w-lg {
-    background: rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(15px) !important;
-    -webkit-backdrop-filter: blur(15px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    border-radius: 18px !important;
-    padding: 1.5rem !important;
-    margin-bottom: 1.5rem !important;
-    max-width: 70% !important;
-    color: white !important;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
-    position: relative !important;
-    overflow: hidden !important;
-    font-size: 1rem !important;
-    line-height: 1.6 !important;
-}
-
-.prose.max-w-lg.bg-gray-700 {
-    background: var(--primary-gradient) !important;
-    margin-left: auto !important;
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2) !important;
-    color: white !important;
-}
-
-.prose.max-w-lg.bg-gray-800 {
-    background: rgba(255, 255, 255, 0.08) !important;
-    margin-right: auto !important;
-    color: rgba(255, 255, 255, 0.95) !important;
-}
-
-.prose.max-w-lg::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.4), 
-        transparent
-    );
-}
-
-/* === FOOTER === */
-footer {
-    background: rgba(255, 255, 255, 0.08) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
-    padding: 1.5rem !important;
-    position: relative !important;
-    flex-shrink: 0 !important;
-}
-
-/* Status indicator */
-#status-indicator {
-    color: rgba(255, 255, 255, 0.7) !important;
-    text-align: center !important;
-    font-size: 0.875rem !important;
-    margin-bottom: 1rem !important;
-    min-height: 1.25rem !important;
-}
-
-/* Input container */
-footer .flex {
-    background: rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(15px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 20px !important;
-    padding: 8px !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 12px !important;
-}
-
-footer .bg-gray-800 {
-    background: rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(15px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 20px !important;
+  background: #13151a !important;
+  padding-bottom: 60px;
+  box-shadow: 0 4px 32px #000a;
+  scroll-behavior: smooth;
 }
 
 #chat-input {
-    flex: 1 !important;
-    background: transparent !important;
-    border: none !important;
-    outline: none !important;
-    color: white !important;
-    font-size: 1rem !important;
-    padding: 12px 16px !important;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 1.09em;
+  color: #fff;
+  padding-left: 12px;
 }
 
-#chat-input::placeholder {
-    color: rgba(255, 255, 255, 0.6) !important;
+/* --- Estilos de Mensajes --- */
+.prose.max-w-lg.bg-gray-700 {
+  background: #23272f !important;
+  color: #e7eaf0 !important;
+  border-radius: 1.25rem;
+  font-size: 1.08em;
 }
 
-/* Botones del input */
-footer label,
-#send-chat-button {
-    background: rgba(255, 255, 255, 0.15) !important;
-    backdrop-filter: blur(10px) !important;
-    border: none !important;
-    border-radius: 50% !important;
-    width: 44px !important;
-    height: 44px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-    transition: all 0.3s ease !important;
-    color: white !important;
-    flex-shrink: 0 !important;
+.prose.max-w-lg.bg-gray-800 {
+  background: #191b20 !important;
+  color: #c3cad9 !important;
+  border-radius: 1.25rem;
+  font-size: 1.08em;
 }
 
-footer label:hover,
-#send-chat-button:hover {
-    background: rgba(255, 255, 255, 0.25) !important;
-    transform: scale(1.05) !important;
-}
 
-#send-chat-button {
-    background: var(--accent-gradient) !important;
-    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3) !important;
-}
-
-#send-chat-button:hover {
-    box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4) !important;
-}
-
-/* Selector de modelo */
-#model-selector {
-    background: rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(10px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 8px !important;
-    padding: 8px 12px !important;
-    color: white !important;
-    font-size: 0.875rem !important;
-    cursor: pointer !important;
-    margin-right: 8px !important;
-}
-
-#model-selector option {
-    background: #2d3748 !important;
-    color: white !important;
-}
-
-/* === HISTORY ITEMS === */
-.history-item {
-    background: rgba(255, 255, 255, 0.08) !important;
-    backdrop-filter: blur(10px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 10px !important;
-    padding: 12px !important;
-    margin-bottom: 8px !important;
-    color: rgba(255, 255, 255, 0.9) !important;
-    cursor: pointer !important;
-    transition: all 0.3s ease !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    font-size: 0.875rem !important;
-    position: relative !important;
-    overflow: hidden !important;
-}
-
-.history-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.2), 
-        transparent
-    );
-}
-
-.history-item:hover {
-    background: rgba(255, 255, 255, 0.15) !important;
-    transform: translateX(4px) !important;
-}
-
-.history-item.active {
-    background: var(--primary-gradient) !important;
-    color: white !important;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
-}
-
-.history-item-title {
-    flex: 1 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-}
-
-/* === LOADING ANIMATION === */
-.gemini-loader {
-    width: 32px !important;
-    height: 32px !important;
-    position: relative !important;
-    animation: rotate 2s linear infinite !important;
-}
-
-.gemini-loader .sparkle {
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 14px !important;
-    height: 14px !important;
-    background: var(--accent-gradient) !important;
-    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%) !important;
-}
-
-.gemini-loader .arc {
-    position: absolute !important;
-    width: 100% !important;
-    height: 100% !important;
-    border-radius: 50% !important;
-    border: 3px solid transparent !important;
-    border-top-color: #00f2fe !important;
-    border-right-color: #4facfe !important;
-    transform: rotate(45deg) !important;
-}
-
-@keyframes rotate {
-    100% { transform: rotate(360deg); }
-}
-
-/* === MODALES === */
-#welcome-modal {
-    background: rgba(0, 0, 0, 0.7) !important;
-    backdrop-filter: blur(5px) !important;
-}
-
-#welcome-modal .bg-gray-800 {
-    background: rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(25px) !important;
-    -webkit-backdrop-filter: blur(25px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 20px !important;
-    color: white !important;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5) !important;
-}
-
-#close-welcome-modal {
-    background: var(--primary-gradient) !important;
-    border: none !important;
-    border-radius: 12px !important;
-    padding: 12px 24px !important;
-    color: white !important;
-    font-weight: 600 !important;
-    cursor: pointer !important;
-    transition: all 0.3s ease !important;
-    width: 100% !important;
-}
-
-#close-welcome-modal:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4) !important;
-}
-
-/* === NOTIFICATION TOAST === */
-#notification-toast {
-    position: fixed !important;
-    top: 1.25rem !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    background: rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(15px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    color: white !important;
-    padding: 0.75rem 1.25rem !important;
-    border-radius: 12px !important;
-    opacity: 0 !important;
-    transition: opacity 0.3s !important;
-    z-index: 100 !important;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
-}
-
-/* === CÓDIGO Y PRE === */
-.prose pre, pre {
-    background: rgba(0, 0, 0, 0.3) !important;
-    backdrop-filter: blur(10px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 12px !important;
-    padding: 1.5rem !important;
-    color: #e2e8f0 !important;
-    font-family: 'JetBrains Mono', 'Fira Mono', 'SF Mono', 'Consolas', 'Menlo', monospace !important;
-    overflow-x: auto !important;
-    margin: 1rem 0 !important;
-    font-size: 0.9rem !important;
-    line-height: 1.5 !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
-}
-
-.prose :not(pre) > code, :not(pre) > code {
-    background: rgba(255, 255, 255, 0.15) !important;
-    color: #80ffea !important;
-    padding: 0.25rem 0.5rem !important;
-    border-radius: 6px !important;
-    font-family: 'JetBrains Mono', monospace !important;
-    font-size: 0.875rem !important;
-}
-
-/* === SCROLLBARS === */
+/* --- Scrollbar Personalizado --- */
 ::-webkit-scrollbar {
-    width: 8px !important;
-    background: rgba(255, 255, 255, 0.05) !important;
+  background: #15161b;
+  width: 9px;
 }
-
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2) !important;
-    border-radius: 10px !important;
+  background: #252832;
+  border-radius: 5px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3) !important;
+
+/* --- Visualizador de código moderno --- */
+.prose pre, pre {
+  background: #181f2a;
+  color: #aee2fb;
+  border-radius: 12px;
+  padding: 1.1em 1.3em;
+  margin: 1em 0;
+  font-size: 1.07em;
+  font-family: 'Fira Mono', 'JetBrains Mono', 'SF Mono', 'Consolas', 'Menlo', monospace;
+  box-shadow: 0 2px 18px #0007, 0 1.5px 0 #36405a inset;
+  border: 1.5px solid #2c3750;
+  overflow-x: auto;
+  position: relative;
 }
 
-/* === RESPONSIVE DESIGN === */
-@media (max-width: 768px) {
-    #history-sidebar {
-        width: 280px !important;
-        position: fixed !important;
-        left: 0 !important;
-        top: 0 !important;
-        height: 100vh !important;
-        z-index: 50 !important;
-        transform: translateX(-100%) !important;
-        transition: transform 0.3s ease !important;
-    }
-
-    #history-sidebar.open {
-        transform: translateX(0) !important;
-    }
-
-    #sidebar-backdrop {
-        position: fixed !important;
-        inset: 0 !important;
-        background: rgba(0, 0, 0, 0.5) !important;
-        z-index: 40 !important;
-    }
-
-    .prose.max-w-lg {
-        max-width: 90% !important;
-    }
-
-    #chat-container {
-        padding: 1rem !important;
-    }
-
-    footer {
-        padding: 1rem !important;
-    }
-
-    #menu-toggle {
-        display: block !important;
-    }
-
-    #user-name,
-    #logout-button {
-        display: none !important;
-    }
-
-    body {
-        font-size: 15px !important;
-    }
-
-    #welcome-screen h2 {
-        font-size: 1.5rem !important;
-        line-height: 2rem !important;
-    }
+.prose pre code, pre code {
+  color: inherit;
+  background: none;
+  font-family: inherit;
+  font-size: inherit;
 }
 
-/* === UTILIDADES === */
-.hidden {
-    display: none !important;
+/* Para código inline */
+.prose :not(pre) > code, :not(pre) > code {
+  background: #232e3a;
+  color: #80ffea;
+  border-radius: 6px;
+  padding: 0.15em 0.42em;
+  font-size: 0.99em;
+  font-family: 'JetBrains Mono', 'SF Mono', 'Consolas', 'Menlo', monospace;
+  font-weight: 500;
 }
 
-.flex {
-    display: flex !important;
+/* Scroll horizontal para bloques de código */
+.prose pre::-webkit-scrollbar,
+pre::-webkit-scrollbar {
+  height: 8px;
+  background: #10141a;
 }
-
-.flex-1 {
-    flex: 1 !important;
+.prose pre::-webkit-scrollbar-thumb,
+pre::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 8px;
 }
-
-/* === FILE DOWNLOAD === */
+/* --- Estilos para Contenedor de Descarga --- */
 .file-download-container {
-    background: rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(15px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 12px !important;
-    padding: 1rem !important;
-    margin: 1rem 0 !important;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
+  background-color: #2d3748;
+  border: 1px solid #4a5568;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-top: 0.5rem;
 }
 
 .file-download-header {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    margin-bottom: 0.75rem !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
 }
 
 .file-download-title {
-    color: rgba(255, 255, 255, 0.95) !important;
-    font-weight: 600 !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 0.5rem !important;
+  color: #e2e8f0;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .file-download-btn {
-    background: var(--accent-gradient) !important;
-    color: white !important;
-    font-weight: 600 !important;
-    padding: 0.5rem 1rem !important;
-    border-radius: 8px !important;
-    border: none !important;
-    cursor: pointer !important;
-    transition: all 0.3s ease !important;
-    font-size: 0.875rem !important;
+  background-color: #3b82f6;
+  color: white;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .file-download-btn:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4) !important;
+  background-color: #2563eb;
 }
 
-/* === CONTEXT MENU === */
-.context-menu {
-    position: absolute !important;
-    background: rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(20px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 12px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
-    z-index: 50 !important;
-    min-width: 150px !important;
-    display: none !important;
-    padding: 0.5rem 0 !important;
-    right: 0.5rem !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-}
+/* --- Animación de Carga (Loader) --- */
+.gemini-loader { width: 28px; height: 28px; position: relative; animation: rotate 2s linear infinite; }
+.gemini-loader .sparkle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; background: #818cf8; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+.gemini-loader .arc { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 3px solid transparent; border-top-color: #fbbf24; border-right-color: #fb7185; transform: rotate(45deg); }
+@keyframes rotate { 100% { transform: rotate(360deg); } }
 
-.context-menu button {
-    display: flex !important;
-    align-items: center !important;
-    gap: 0.75rem !important;
-    width: 100% !important;
-    padding: 0.6rem 1rem !important;
-    text-align: left !important;
-    color: rgba(255, 255, 255, 0.9) !important;
-    font-size: 0.875rem !important;
-    background: none !important;
-    border: none !important;
-    cursor: pointer !important;
-    transition: background-color 0.1s ease-in-out !important;
-}
 
-.context-menu button:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-}
+/* --- Menú Contextual e Items del Historial --- */
+.history-item { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; margin-bottom: 0.25rem; border-radius: 0.5rem; cursor: pointer; transition: background-color 0.15s ease-in-out; color: #d1d5db; font-size: 0.875rem; line-height: 1.25rem; position: relative; }
+.history-item:hover { background-color: #374151; color: #e5e7eb; }
+.history-item.active { background-color: #3b82f6; color: white; font-weight: 500; }
+.history-item-title { flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.history-item-menu-btn { background: none; border: none; padding: 0.25rem; border-radius: 0.25rem; color: #9ca3af; cursor: pointer; visibility: hidden; opacity: 0; transition: all 0.15s ease-in-out; flex-shrink: 0; }
+.history-item:hover .history-item-menu-btn, .history-item.active .history-item-menu-btn { visibility: visible; opacity: 1; }
+.history-item-menu-btn:hover { background-color: rgba(255, 255, 255, 0.2); }
 
-.context-menu button svg {
-    color: rgba(255, 255, 255, 0.6) !important;
-}
+.context-menu { position: absolute; background-color: #2d3748; border-radius: 0.5rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); z-index: 50; min-width: 150px; display: none; padding: 0.5rem 0; right: 0.5rem; top: 50%; transform: translateY(-50%); }
+.context-menu button { display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.6rem 1rem; text-align: left; color: #e5e7eb; font-size: 0.875rem; background: none; border: none; cursor: pointer; transition: background-color 0.1s ease-in-out; }
+.context-menu button:hover { background-color: #4a5568; }
+.context-menu button svg { color: #9ca3af; }
+/* Archivo: style.css */
 
-/* === HISTORY ITEM MENU === */
-.history-item-menu-btn {
-    background: none !important;
-    border: none !important;
-    padding: 0.25rem !important;
-    border-radius: 0.25rem !important;
-    color: rgba(255, 255, 255, 0.6) !important;
-    cursor: pointer !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    transition: all 0.15s ease-in-out !important;
-    flex-shrink: 0 !important;
-}
+/* --- Estilos Responsivos para Móviles --- */
+@media (max-width: 640px) {
+  /* Reduce el ancho máximo de las burbujas de chat para que no ocupen toda la pantalla */
+  .prose.max-w-lg {
+    max-width: 90%;
+  }
 
-.history-item:hover .history-item-menu-btn,
-.history-item.active .history-item-menu-btn {
-    visibility: visible !important;
-    opacity: 1 !important;
-}
+  /* Ajusta ligeramente el tamaño de la fuente para mejor legibilidad en pantallas pequeñas */
+  body {
+    font-size: 15px;
+  }
 
-.history-item-menu-btn:hover {
-    background: rgba(255, 255, 255, 0.2) !important;
-}
+  #chat-input {
+    font-size: 1em; /* Ajusta el tamaño de la fuente del input */
+  }
 
-/* === BACKDROP FILTERS === */
-#sidebar-backdrop {
-    backdrop-filter: blur(5px) !important;
-    -webkit-backdrop-filter: blur(5px) !important;
-}
+  /* Hace la pantalla de bienvenida un poco más compacta */
+  #welcome-screen h2 {
+    font-size: 1.5rem; /* 24px */
+    line-height: 2rem; /* 32px */
+  }
 
-/* === SPECIFIC FIXES === */
-/* Arreglar el layout principal */
-#app-screen.flex {
-    display: flex !important;
-    flex-direction: row !important;
-    width: 100% !important;
-    height: 100vh !important;
-}
-
-/* Asegurar que el main content ocupe el espacio correcto */
-#app-screen > div:last-child {
-    flex: 1 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    min-width: 0 !important;
-}
-
-/* Arreglar la posición del welcome screen */
-#welcome-screen {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    z-index: 1 !important;
-}
-
-/* Cuando no hay welcome screen, ocultar */
-#welcome-screen.hidden {
-    display: none !important;
-}
-
-/* Asegurar que el chat history se muestre correctamente */
-#chat-history {
-    padding-top: 0 !important;
-    margin-top: 0 !important;
-}
-
-/* Fix para el input container */
-.relative {
-    position: relative !important;
-}
-
-/* Fix para botones deshabilitados */
-button:disabled {
-    opacity: 0.5 !important;
-    cursor: not-allowed !important;
-}
-
-/* Fix para texto seleccionable */
-.prose * {
-    user-select: text !important;
-    -webkit-user-select: text !important;
-}
-
-/* Fix para links en los mensajes */
-.prose a {
-    color: #4facfe !important;
-    text-decoration: underline !important;
-}
-
-.prose a:hover {
-    color: #00f2fe !important;
-}
-
-/* Fix para listas en los mensajes */
-.prose ul {
-    list-style: disc !important;
-    padding-left: 1.5rem !important;
-    margin: 1rem 0 !important;
-}
-
-.prose ol {
-    list-style: decimal !important;
-    padding-left: 1.5rem !important;
-    margin: 1rem 0 !important;
-}
-
-.prose li {
-    margin: 0.5rem 0 !important;
-}
-
-/* Fix para headings en los mensajes */
-.prose h1 {
-    font-size: 1.5rem !important;
-    font-weight: 700 !important;
-    margin: 1.5rem 0 1rem 0 !important;
-    color: white !important;
-}
-
-.prose h2 {
-    font-size: 1.25rem !important;
-    font-weight: 600 !important;
-    margin: 1.25rem 0 0.75rem 0 !important;
-    color: white !important;
-}
-
-.prose h3 {
-    font-size: 1.125rem !important;
-    font-weight: 600 !important;
-    margin: 1rem 0 0.5rem 0 !important;
-    color: white !important;
-}
-
-/* Fix para párrafos */
-.prose p {
-    margin: 0.75rem 0 !important;
-    line-height: 1.6 !important;
-}
-
-/* Fix para imágenes en los mensajes */
-.prose img {
-    max-width: 100% !important;
-    height: auto !important;
-    border-radius: 8px !important;
-    margin: 1rem 0 !important;
-}
-
-/* Fix para tablas */
-.prose table {
-    border-collapse: collapse !important;
-    width: 100% !important;
-    margin: 1rem 0 !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 8px !important;
-    overflow: hidden !important;
-}
-
-.prose th,
-.prose td {
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    padding: 0.5rem !important;
-    text-align: left !important;
-}
-
-.prose th {
-    background: rgba(255, 255, 255, 0.1) !important;
-    font-weight: 600 !important;
-}
-
-/* Fix para blockquotes */
-.prose blockquote {
-    border-left: 4px solid #4facfe !important;
-    padding-left: 1rem !important;
-    margin: 1rem 0 !important;
-    font-style: italic !important;
-    color: rgba(255, 255, 255, 0.9) !important;
-}
-
-/* Efectos de hover mejorados */
-.glass-hover {
-    transition: all 0.3s ease !important;
-}
-
-.glass-hover:hover {
-    background: rgba(255, 255, 255, 0.15) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
-}
-
-/* Pulse effect para elementos importantes */
-.pulse-glow {
-    animation: pulseGlow 2s infinite !important;
-}
-
-@keyframes pulseGlow {
-    0%, 100% { 
-        box-shadow: 0 0 20px rgba(79, 172, 254, 0.3) !important;
-    }
-    50% { 
-        box-shadow: 0 0 30px rgba(79, 172, 254, 0.5) !important;
-    }
-}
-
-/* Fix final para layout issues */
-* {
-    box-sizing: border-box !important;
-}
-
-html, body {
-    height: 100% !important;
-    overflow-x: hidden !important;
-}
-
-#app-screen {
-    overflow: hidden !important;
-}
-
-/* Arreglar problema de z-index */
-#history-sidebar {
-    z-index: 10 !important;
-}
-
-header {
-    z-index: 5 !important;
-}
-
-#chat-container {
-    z-index: 1 !important;
-}
-
-footer {
-    z-index: 5 !important;
-}
-
-/* Transition suaves para todos los elementos glass */
-.glass-effect,
-#history-sidebar,
-header,
-footer,
-.prose.max-w-lg,
-.history-item,
-#new-chat-button,
-#temporal-chat-button {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-/* Mejorar legibilidad del texto */
-.prose, .prose * {
-    text-rendering: optimizeLegibility !important;
-    -webkit-font-smoothing: antialiased !important;
-    -moz-osx-font-smoothing: grayscale !important;
+  /* Oculta la barra de desplazamiento del historial en la vista móvil, ya que es un overlay */
+  #history-sidebar::-webkit-scrollbar {
+    display: none;
+  }
 }
