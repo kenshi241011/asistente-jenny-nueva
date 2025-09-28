@@ -13,7 +13,7 @@ function showToast(message, duration = 3000) {
 
 // --- Constantes y Variables Globales ---
 const API_KEY = "AIzaSyD9nbnpk2YAAPNalIJfS8kIiJReQahuw_4"; // Para Gemini
-const GROQ_API_KEY = "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";
+const GROQ_API_KEY = "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";
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-jenny-app';
 
 let app, auth, db, userId;
