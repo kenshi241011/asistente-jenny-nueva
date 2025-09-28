@@ -12,7 +12,7 @@ function showToast(message, duration = 3000) {
 }
 
 // --- Constantes y Variables Globales ---
-const API_KEY = "AIzaSyB1xjT_S_pPECCQZ50VDDb3vRbQBa_EHpk"; // Para Gemini
+const API_KEY = "AIzaSyD9nbnpk2YAAPNalIJfS8kIiJReQahuw_4"; // Para Gemini
 const GROQ_API_KEY = "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";
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-jenny-app';
 
