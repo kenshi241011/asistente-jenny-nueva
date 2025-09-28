@@ -303,7 +303,7 @@ async function handleChat(promptOverride = null, isFileContext = false) {
         let aiResponse = '';
 
         if (provider === 'gemini') {
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
             const payload = { contents: tempContext.map(({role, parts}) => ({role, parts})) };
             const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             const result = await response.json();
